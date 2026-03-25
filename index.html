@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol: Role Audit</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #050505; color: #d1d1d1; font-family: 'Inter', sans-serif; line-height: 1.6; padding: 20px; }
+        .container { max-width: 700px; margin: auto; background: #111; border: 1px solid #222; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #fff; text-align: center; font-size: 1.5rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .category-title { color: #00ffcc; font-weight: bold; margin-top: 25px; text-transform: uppercase; font-size: 0.9rem; letter-spacing: 1px; }
+        label { display: flex; align-items: center; background: #1a1a1a; margin: 8px 0; padding: 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        label:hover { background: #222; border-color: #444; }
+        input[type="checkbox"] { margin-right: 15px; accent-color: #00ffcc; transform: scale(1.3); }
+        button { width: 100%; padding: 15px; margin-top: 30px; background: #00ffcc; color: #000; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #00cca3; letter-spacing: 1px; }
+        #chart-container { margin-top: 40px; display: none; background: #1a1a1a; padding: 20px; border-radius: 8px; }
+        .summary { text-align: center; margin-top: 20px; font-size: 1.2rem; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>System Audit: Sexual Role</h1>
+
+    <div class="category-title">The Giver (Top)</div>
+    <label><input type="checkbox" class="q" data-type="top"> I feel most "in my element" when I'm driving the physical action.</label>
+    <label><input type="checkbox" class="q" data-type="top"> Seeing my partner lose control because of me is my biggest turn-on.</label>
+    <label><input type="checkbox" class="q" data-type="top"> I prioritize the visual aspect of the encounter above all else.</label>
+    <label><input type="checkbox" class="q" data-type="top"> I enjoy the physical stamina required to maintain the active role.</label>
+    <label><input type="checkbox" class="q" data-type="top"> If a partner asks me to take charge, I don't have to "fake" the confidence.</label>
+
+    <div class="category-title">The Receiver (Bottom)</div>
+    <label><input type="checkbox" class="q" data-type="bottom"> I find total psychological relief in letting someone else take over.</label>
+    <label><input type="checkbox" class="q" data-type="bottom"> The physical sensation of being "filled" is my primary goal.</label>
+    <label><input type="checkbox" class="q" data-type="bottom"> I enjoy the "prep" process; it makes me feel ready and desired.</label>
+    <label><input type="checkbox" class="q" data-type="bottom"> I am more sensitive to internal sensations than external visual cues.</label>
+    <label><input type="checkbox" class="q" data-type="bottom"> Being handled or moved around by a partner is highly arousing to me.</label>
+
+    <div class="category-title">The Switch (Verse)</div>
+    <label><input type="checkbox" class="q" data-type="verse"> My role preference changes based on my mood that day.</label>
+    <label><input type="checkbox" class="q" data-type="verse"> I feel "incomplete" if I go too long without swapping roles.</label>
+    <label><input type="checkbox" class="q" data-type="verse"> The chemistry with the specific partner dictates what I want to do.</label>
+    <label><input type="checkbox" class="q" data-type="verse"> I like the "equalizer" vibe where we both get to experience everything.</label>
+    <label><input type="checkbox" class="q" data-type="verse"> I find both "giving" and "receiving" equally intuitive.</label>
+
+    <div class="category-title">The Alternative (Side)</div>
+    <label><input type="checkbox" class="q" data-type="side"> I prefer oral, manual, or friction-based play over penetration.</label>
+    <label><input type="checkbox" class="q" data-type="side"> I find the logistics of "top/bottom" roles more stressful than fun.</label>
+    <label><input type="checkbox" class="q" data-type="side"> My favorite part of intimacy is the "outercourse" and skin contact.</label>
+    <label><input type="checkbox" class="q" data-type="side"> I’d rather focus on technical skills (hands/mouth) than penetration.</label>
+    <label><input type="checkbox" class="q" data-type="side"> I often feel pressured to choose a role that doesn't actually fit me.</label>
+
+    <button onclick="generateAudit()">Finalize Audit & Generate Chart</button>
+
+    <div id="chart-container">
+        <canvas id="roleChart"></canvas>
+        <div id="summary" class="summary"></div>
+    </div>
+</div>
+
+<script>
+    let myChart = null;
+
+    function generateAudit() {
+        const scores = { top: 0, bottom: 0, verse: 0, side: 0 };
+        document.querySelectorAll('.q:checked').forEach(box => {
+            scores[box.dataset.type]++;
+        });
+
+        const total = Object.values(scores).reduce((a, b) => a + b, 0);
+        if (total === 0) {
+            alert("Input required. Please select at least one behavior.");
+            return;
+        }
+
+        document.getElementById('chart-container').style.display = 'block';
+
+        const ctx = document.getElementById('roleChart').getContext('2d');
+        
+        if (myChart) { myChart.destroy(); }
+
+        myChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['Top', 'Bottom', 'Verse', 'Side'],
+                datasets: [{
+                    label: 'Role Affinity %',
+                    data: [
+                        (scores.top / 5) * 100,
+                        (scores.bottom / 5) * 100,
+                        (scores.verse / 5) * 100,
+                        (scores.side / 5) * 100
+                    ],
+                    backgroundColor: 'rgba(0, 255, 204, 0.2)',
+                    borderColor: '#00ffcc',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#fff'
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        angleLines: { color: '#333' },
+                        grid: { color: '#333' },
+                        pointLabels: { color: '#fff', font: { size: 14 } },
+                        ticks: { display: false, max: 100, stepSize: 20 }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const maxRole = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+        document.getElementById('summary').innerText = "Primary Trajectory: " + maxRole.toUpperCase();
+        
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
